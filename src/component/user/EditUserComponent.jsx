@@ -1,17 +1,41 @@
 import React, { Component } from 'react'
+import ApiService from '../../ApiService'
 
-class AddUserComponent extends Component {
+class EditUserComponent extends Component {
+
     constructor(props){
         super(props);
+
         this.state={
-            username:'',
-            password:'',
+            id:'',
             firstName:'',
             lastName:'',
             age:'',
             salary:'',
             message:null
         }
+    }
+
+    componentDidMount(){
+        this.loadUser();
+    }
+
+    loadUser = () => {
+        ApiService.fetchUserByID(window.localStorage.getItem("userID"))
+        .then( res => {
+            let user = res.date;
+            this.setState({
+                id:user.id,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                age: user.age,
+                salary: user.salary,
+            })
+        })
+        .catch(err=>{
+            console.log("loadUser() 에러", err);
+        })
     }
 
     onChange = (e) => {
@@ -24,7 +48,7 @@ class AddUserComponent extends Component {
         e.preventDefault();
 
         let user = {
-            username: this.state.username,
+            id: this.state.id,
             password: this.state.password,
             firstName: this.state.firstName,
             lastName: this.state.lastName,
@@ -32,12 +56,11 @@ class AddUserComponent extends Component {
             salary: this.state.salary
         }
 
-        ApiService.addUser(user)
+        ApiService.editUser(user)
         .then( res => {
             this.setState({
-                message: user.username + '님이 성공적으로 등록되었습니다.'
+                message: user.username + '님 정보가 수정되었습니다.'
             })
-            console.log(this.state.message);
             this.props.history.push('/users');
         })
         .catch( err => {
@@ -48,36 +71,31 @@ class AddUserComponent extends Component {
     render(){
         return(
             <div>
-                <h2>Add User</h2>
+                <h2>Edit User</h2>
                 <form>
                     <div>
                         <label>User Name:</label>
-                        <input type="text" placeholder="please input your username" name="username" value={this.state.username} onChange={this.onChange} />
-                    </div>
-
-                    <div>
-                        <label>Password:</label>
-                        <input type="password" placeholder="please input your password" name="password" value={this.state.password} onChange={this.onChange} />
+                        <input type="text" name="username" readOnly="true" defaultValue={this.state.username}/>
                     </div>
 
                     <div>
                         <label>First Name:</label>
-                        <input placeholder="please input your first name" name="password" value={this.state.firstName} onChange={this.onChange} />
+                        <input placeholder="Edit your first name" name="firstName" value={this.state.firstName} onChange={this.onChange} />
                     </div>
 
                     <div>
                         <label>Last Name:</label>
-                        <input placeholder="please input your last name" name="password" value={this.state.lastName} onChange={this.onChange} />
+                        <input placeholder="Edit your last name" name="lastName" value={this.state.lastName} onChange={this.onChange} />
                     </div>
 
                     <div>
                         <label>Age:</label>
-                        <input type="number" placeholder="please input your age" name="password" value={this.state.age} onChange={this.onChange} />
+                        <input type="number" placeholder="please input your age" name="age" value={this.state.age} onChange={this.onChange} />
                     </div>
 
                     <div>
                         <label>Salary:</label>
-                        <input type="number" placeholder="please input your salary" name="password" value={this.state.salary} onChange={this.onChange} />
+                        <input type="number" placeholder="please input your salary" name="salary" value={this.state.salary} onChange={this.onChange} />
                     </div>
                     <button onClick={this.saveUser}>Save</button>
                 </form>
@@ -86,4 +104,4 @@ class AddUserComponent extends Component {
     }
 }
 
-export default AddUserComponent;
+export default EditUserComponent;
